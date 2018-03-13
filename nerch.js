@@ -1,12 +1,15 @@
 const SHA256 = require('crypto-js/sha256');
 class Address{
-    constructor(number, hash){
-        let block = new Block();
+    constructor(){
         this.addressChain = [];
-        this.number = number;
+        this.number = this.addressChain.length;
+        this.hash = this.publicHash();
     }
     createNewAddress(){
-        this.addressChain.push(new Address(this.addressChain.length));
+        this.addressChain.push(new Address(this.number));
+    }
+    publicHash(){
+        return SHA256(this.number).toString();
     }
 }
 
@@ -24,7 +27,6 @@ class Block{
         this.prevHash = prevHash;
         this.hash = this.calculateHash();
         this.nonce = 0;
-        this.minereward = 10;
     }
     calculateHash(){
             return SHA256(this.date + this.info + this.prevHash + this.nonce).toString();
@@ -42,15 +44,32 @@ class Blockchain{
         this.chain = [this.createGensisBlock()];
         this.pendingtrans = [];
         this.difficulty = 2;
+        this.minereward = 10;
     }
     createGensisBlock(){
         return new Block(Date.now(), "First block", null);
     }
-    addBlock(info){
-        this.info = info;
-        let block = new Block(Date.now(), info, this.chain[this.chain.length - 1].calculateHash());
+    minePendingTransactions(mineaddress){
+        let block = new Block(Date.now(), this.pendingtrans);
         block.mineBlock(this.difficulty);
         this.chain.push(block);
+        this.pendingtrans[new Transaction(null, mineaddress, this.minereward)];
+    }
+
+    getBalanceOfAddress(address){
+        let balance = 0;
+        
+        for(const block of this.chain){
+            for(const trans of block.info){
+                if(trans.from === address){
+                    balance -= trans.amount;
+                }
+                if(trans.to === address){
+                    balance += trans.amount;
+                }
+            }
+        }
+        return balance;
     }
     createTransaction(Transaction){
         this.pendingtrans.push(Transaction);
@@ -70,5 +89,8 @@ class Blockchain{
 
 let coin = new Blockchain();
 let address = new Address();
-coin.addBlock();
-console.log();
+
+coin.createTransaction(new Transaction('address1', 'address2', 3));
+coin.minePendingTransactions('mine');
+console.log(coin.getBalanceOfAddress('mine'));
+
