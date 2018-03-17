@@ -1,15 +1,12 @@
 const SHA256 = require('crypto-js/sha256');
 class Address{
-    constructor(){
-        this.addressChain = [];
-        this.number = this.addressChain.length;
-        this.hash = this.publicHash();
+    constructor(username){
+        this.chain = [];
+        this.publicKey = this.hash(username);
+        this.privateKey = this.hash(); 
     }
-    createNewAddress(){
-        this.addressChain.push(new Address(this.number));
-    }
-    publicHash(){
-        return SHA256(this.number).toString();
+    hash(obj){
+        return SHA256(obj).toString();
     }
 }
 
@@ -36,7 +33,8 @@ class Block{
             this.nonce++;
             this.hash = this.calculateHash();
         }
-    console.log("Block mined: " + this.hash);
+    console.log("\nBlock mined: " + this.hash);
+    console.log(this.info);
     }
 }
 class Blockchain{
@@ -53,7 +51,7 @@ class Blockchain{
         let block = new Block(Date.now(), this.pendingtrans);
         block.mineBlock(this.difficulty);
         this.chain.push(block);
-        this.pendingtrans[new Transaction(null, mineaddress, this.minereward)];
+        this.pendingtrans = [new Transaction(mineaddress, null, this.minereward)];
     }
 
     getBalanceOfAddress(address){
@@ -89,8 +87,9 @@ class Blockchain{
 
 let coin = new Blockchain();
 let address = new Address();
-
 coin.createTransaction(new Transaction('address1', 'address2', 3));
+coin.createTransaction(new Transaction('address1', 'address3', 6));
 coin.minePendingTransactions('mine');
 console.log(coin.getBalanceOfAddress('mine'));
-
+coin.minePendingTransactions('mine');
+console.log(coin.getBalanceOfAddress('mine'));
