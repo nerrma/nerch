@@ -3,7 +3,7 @@ class Address{
     constructor(username){
         this.chain = [];
         this.publicKey = this.hash(username);
-        this.privateKey = this.hash(); 
+        this.privateKey = this.hash(this.publickey); 
     }
     hash(obj){
         return SHA256(obj).toString();
@@ -41,17 +41,27 @@ class Blockchain{
     constructor(){
         this.chain = [this.createGensisBlock()];
         this.pendingtrans = [];
+        this.hold = [];
         this.difficulty = 2;
         this.minereward = 10;
+        this.i = 0;
+        this.blocksize = 1;
     }
     createGensisBlock(){
         return new Block(Date.now(), "First block", null);
     }
     minePendingTransactions(mineaddress){
-        let block = new Block(Date.now(), this.pendingtrans);
-        block.mineBlock(this.difficulty);
-        this.chain.push(block);
-        this.pendingtrans = [new Transaction(mineaddress, null, this.minereward)];
+            let block = new Block(Date.now(), this.pendingtrans);
+            block.mineBlock(this.difficulty);
+            this.chain.push(block);
+            this.pendingtrans = [new Transaction(mineaddress, null, this.minereward)];
+            if(this.checkHold() == true){
+               while(this.i < this.hold.length){
+                    this.pendingtrans.push(this.hold[this.i]);
+                    this.i++;
+               }
+                this.hold = [];
+            }
     }
 
     getBalanceOfAddress(address){
@@ -67,29 +77,31 @@ class Blockchain{
                 }
             }
         }
-        return balance;
+        return ("The balance of " + address + " is " + balance);
     }
     createTransaction(Transaction){
-        this.pendingtrans.push(Transaction);
+        if(this.pendingtrans.length < this.blocksize){
+            this.pendingtrans.push(Transaction);
+        }
+        else{
+            this.hold.push(Transaction);
+        }
     }
     getLastestBlock(){
         return this.chain[this.chain.length - 1];
     }
-    generateBlock(blockno){
-        this.blockno = blockno;
-        this.int = 1;
-        while(this.int <= blockno){
-            this.int++;
-            this.addBlock();
+    checkHold(){
+        if(this.hold.length > 0){
+            return true;
         }
     }
 }
 
 let coin = new Blockchain();
 let address = new Address();
+
 coin.createTransaction(new Transaction('address1', 'address2', 3));
 coin.createTransaction(new Transaction('address1', 'address3', 6));
+console.log(coin.hold);
 coin.minePendingTransactions('mine');
-console.log(coin.getBalanceOfAddress('mine'));
 coin.minePendingTransactions('mine');
-console.log(coin.getBalanceOfAddress('mine'));
