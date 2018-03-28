@@ -1,12 +1,25 @@
 const SHA256 = require('crypto-js/sha256');
 class Address{
-    constructor(username){
-        this.chain = [];
+    constructor(username, index){
         this.publicKey = this.hash(username);
         this.privateKey = this.hash(this.publickey); 
+        this.index = index;
     }
     hash(obj){
         return SHA256(obj).toString();
+    }
+}
+class Addresses{
+    constructor(){
+        this.chain = [];
+        this.i = 0; 
+    }
+    hash(obj){
+        return SHA256(obj).toString();
+    }
+    newAddress(name){
+        this.chain.push(new Address(name, this.i));
+        this.i++;
     }
 }
 
@@ -45,7 +58,7 @@ class Blockchain{
         this.difficulty = 2;
         this.minereward = 10;
         this.i = 0;
-        this.blocksize = 1;
+        this.blocksize = 5;
     }
     createGensisBlock(){
         return new Block(Date.now(), "First block", null);
@@ -98,10 +111,12 @@ class Blockchain{
 }
 
 let coin = new Blockchain();
-let address = new Address();
+let address = new Addresses();
 
-coin.createTransaction(new Transaction('address1', 'address2', 3));
-coin.createTransaction(new Transaction('address1', 'address3', 6));
-console.log(coin.hold);
-coin.minePendingTransactions('mine');
-coin.minePendingTransactions('mine');
+// coin.createTransaction(new Transaction('address1', 'address2', 3));
+// coin.createTransaction(new Transaction('address1', 'address3', 6));
+address.newAddress('men');
+address.newAddress('mmm');
+console.log(address.chain);
+// coin.minePendingTransactions('mine');
+// coin.minePendingTransactions('mine');
