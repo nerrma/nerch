@@ -21,6 +21,13 @@ class Addresses{
         this.chain.push(new Address(name, this.i));
         this.i++;
     }
+    search(publickey){
+        for(this.i = 0; this.i < this.chain.length; this.i++){
+            if(this.chain[this.i].publicKey == publickey){
+                return this.chain[this.i].index; 
+            }
+        }
+    }
 }
 
 class Transaction{
@@ -93,11 +100,16 @@ class Blockchain{
         return ("The balance of " + address + " is " + balance);
     }
     createTransaction(Transaction){
-        if(this.pendingtrans.length < this.blocksize){
-            this.pendingtrans.push(Transaction);
+        if(this.getBalanceOfAddress(Transaction.from.publicKey) <= 0){
+            return false;
         }
-        else{
-            this.hold.push(Transaction);
+        else if(this.getBalanceOfAddress(Transaction.from.publicKey) < 0){
+            if(this.pendingtrans.length < this.blocksize){
+                this.pendingtrans.push(Transaction);
+            }
+            else{
+                this.hold.push(Transaction);
+            }
         }
     }
     getLastestBlock(){
@@ -113,10 +125,9 @@ class Blockchain{
 let coin = new Blockchain();
 let address = new Addresses();
 
-// coin.createTransaction(new Transaction('address1', 'address2', 3));
-// coin.createTransaction(new Transaction('address1', 'address3', 6));
 address.newAddress('men');
 address.newAddress('mmm');
-console.log(address.chain);
-// coin.minePendingTransactions('mine');
-// coin.minePendingTransactions('mine');
+// console.log(address.chain);
+coin.createTransaction(new Transaction('08e3c4c91ca5c58e479ea699df7b1a7e3743831ac17b27e1e967c7d74f41df23', '8b7293f6dd93853c83bf8c87ec5349a41789fa166a9431f108edb538e6fd82fd', 6));
+coin.minePendingTransactions('miner');
+console.log(coin.getBalanceOfAddress('8b7293f6dd93853c83bf8c87ec5349a41789fa166a9431f108edb538e6fd82fd'));
