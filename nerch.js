@@ -123,7 +123,6 @@ let address = new Addresses();
 
 address.newAddress('men', 60);
 address.newAddress('mmm', 30);
-// console.log(address.chain);
 coin.createTransaction(new Transaction(address.AD('08e3c4c91ca5c58e479ea699df7b1a7e3743831ac17b27e1e967c7d74f41df23'), address.AD('8b7293f6dd93853c83bf8c87ec5349a41789fa166a9431f108edb538e6fd82fd'), 6));
 coin.minePendingTransactions('miner');
 console.log(address.getBalanceOfAddress(address.AD('8b7293f6dd93853c83bf8c87ec5349a41789fa166a9431f108edb538e6fd82fd')));
